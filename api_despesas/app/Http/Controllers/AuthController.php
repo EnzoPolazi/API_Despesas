@@ -3,19 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Http\Requests\CadastrarUserRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ *  Esse controller é utilizado para declaração de todos os métodos responsáveis pela autenticação do usuário
+ */
+
 class AuthController extends Controller
 {
-    public function cadastrar(Request $request){
-        //valida informações de cadastro
-        $fields = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|unique:users,email',
-            'password' => 'required|string|confirmed'
-        ]);
+    /**
+     * Cadastra um novo usuário
+     */
+    public function cadastrar(CadastrarUserRequest $request){
+        //Cria um array com os dados já validados
+        $fields = $request->validated();
 
         //Cria o novo usuário
         $user = User::create([
@@ -32,19 +36,19 @@ class AuthController extends Controller
             'token' => $token
         ];
 
-        //Retorna o usuário criado e seu respectivo token
+        //Retorna o user e seu token, e não uma mensagem de sucesso, apenas para fins de teste.
         return response($response, 201);
     }
 
+    /**
+     * Realiza login do usuário
+     */
     public function login(Request $request){
-        //valida informações de login
-        $fields = $request->validate([
-            'email' => 'required|string|unique:users,email',
-            'password' => 'required|string|confirmed'
-        ]);
+        //Cria um array com os dados já validados
+        $fields = $request->validated();
 
-        //Verifica email
-        $user = User::where('email', $fields['email']);
+        //Busca usuario com o email informado
+        $user = User::where('email', $fields['email'])->first();
 
         //Verifica login
         if(!$user || !Hash::check($fields['password'], $user->password)){
@@ -59,10 +63,13 @@ class AuthController extends Controller
             'token' => $token
         ];
 
-        //Retorna o usuário criado e seu respectivo token
+        //Retorna o user e seu token, e não uma mensagem de sucesso, apenas para fins de teste.
         return response($response, 201);
     }
 
+    /**
+     * Realiza logout do usuário
+     */
     public function logout(Request $request){
         auth()->user()->tokens()->delete();
 

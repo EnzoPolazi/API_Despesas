@@ -17,4 +17,10 @@ class Despesa extends Model
         'id_usuario',
         'valor'
     ];
+
+    //Retorna o usuário que é dono da despesa.
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }
